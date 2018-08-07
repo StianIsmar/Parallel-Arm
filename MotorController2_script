@@ -1,0 +1,40 @@
+'########################################################################
+
+'##### @file: pkm_arm
+
+'##### @version: 1.0.0
+
+'##### @licence: MIT
+
+'##### @author: Stian Ismar
+
+'########################################################################
+init:
+
+SetCommand(_C,0)
+
+main:
+
+new_cmd = GetValue(_VAR, 9)
+if cmd <> new_cmd then
+  cmd = new_cmd
+  setCommand(_P, cmd)
+end if
+
+lftSafety = GetValue(_DI,5)
+rgtSafety = GetValue(_DI,4)
+c_pos = GetValue(_C)
+
+if lftSafety = 0 And cmd < c_pos then
+    print ("Cannot move left!")
+	cmd=c_pos
+	setCommand(_P, cmd)
+elseif rgtSafety = 0 And cmd > c_pos then
+	print ("Cannot move right")
+	cmd=c_pos
+	setCommand(_P, cmd)
+end if
+wait(5)
+goto main
+
+'################################
