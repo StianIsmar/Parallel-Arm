@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         msg.data.resize(3);
         msg.data[0]= 0; //x
         msg.data[1]= 0; //y
-        msg.data[2]= 350; //z
+        msg.data[2]= 350; //z 
 
         chatter_pub.publish(msg);
 
