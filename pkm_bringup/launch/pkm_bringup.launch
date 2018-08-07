@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+
+<launch>
+  <arg name="robot_name" default="" />
+  <arg name="tf_prefix" default="" />
+  <arg name="robot_model" default="$(find pkm_bringup)/config/fake_thorvald.yaml" />
+  <arg name="model_extras" default="$(find thorvald_model)/urdf/sensor_modules/sensor_frames_example.xacro" />
+  <arg name="simple_sim" default="False" />
+  <arg name="joy_dev" default="/dev/input/js0" />
+
+
+  <!-- model bringup -->
+  <include file="$(find thorvald_model)/launch/model.launch">
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="tf_prefix" value="$(arg tf_prefix)" />
+    <arg name="robot_model" value="$(arg robot_model)" />
+    <arg name="model_extras" value="$(arg model_extras)" />
+  </include>
+
+
+  <!-- base bringup-->
+  <include file="$(find thorvald_base)/launch/base_bringup.launch">
+    <arg name="robot_model" value="$(arg robot_model)" />
+    <arg name="simple_sim" value="$(arg simple_sim)" />
+  </include>
+
+
+</launch>
