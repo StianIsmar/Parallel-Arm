@@ -11,15 +11,15 @@
 '########################################################################
 init:
 
-lftSafety = GetValue(_DI,5)
-setCommand(_P, -100000)
-if lftSafety = 0
- print ("Den har truffet den andre vognen nå!")
-end if
+'#######Homing sequence, not 100% : ######
+
+'#lftSafety = GetValue(_DI,5)
+'#setCommand(_P, -100000)
+'#if lftSafety = 0
+'#print ("Den har truffet den andre vognen nå!")
+'#end if
 
 SetCommand(_C,0)
-
-
 
 
 main:
