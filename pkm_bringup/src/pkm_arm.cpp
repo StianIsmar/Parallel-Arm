@@ -57,6 +57,7 @@ public:
         n_3 = 66;
         new_cmd_ = false;
     }
+    /** Destructor for the endPos-class **/
 
     ~endPos() {}
 
@@ -70,7 +71,7 @@ public:
     double mmToCounts(double input);
     double radToCounts(double input);
 
-    /** Getters for priv. variables:**/
+    /** Getters for private variables:**/
     double getQ1(){return q1_;};
     double getQ2(){return q2_;};
     double getQ3(){return q3_;};
@@ -124,6 +125,7 @@ void endPos::sendCanFrame(int CANID, int dpos)
 
     msg.id = 0x200 + CANID; //hexatodecimal + node id. Node ID is for example CANNOde = can_id_q3_;
 
+    /**Bit shifting**/
     msg.length = 8;
     msg.data.resize(8);
     msg.data[0] = dpos;
@@ -134,10 +136,6 @@ void endPos::sendCanFrame(int CANID, int dpos)
 
     int arr[] {1,0,0,0,0,0,0,0};
 
-    for (int i = 0; i < 8; i++){
-        //msg.data[i] = arr[i];
-        //std::cout << (int)msg.data[i] << std::endl;
-    }
 
     ROS_INFO("%d, %d", msg.id,msg.length);
     //ROS_INFO("%d, %d, %d",arr[0],arr[1],arr[2]);
@@ -152,8 +150,6 @@ double endPos::inverseKinematics()
     double b1 = -2*x_ + dxe_;
     double c1 = pow(x_,2) - x_*dxe_ + pow(dxe_,2)/4 + pow(y_,2) + pow(z_,2)-pow(378.7725892,2);
 
-
-
     q1_ = (-b1 - sqrt(pow(b1,2) - 4*a1*c1)) / (2*a1); //q1_ er satt //m
     q2_ = 2*x_ - q1_; //q2_ er satt //m
 
@@ -166,11 +162,9 @@ double endPos::inverseKinematics()
     double b3 = 4*D3*B3*S_;
     double c3 = pow(D3,2) - pow(2*C3*S_,2);
     double sinq3 =  (-b3 + sqrt(pow(b3,2)-4*a3*c3)) / (2*a3);
-    std::cout << (pow(b3,2)-4*a3*c3) <<std::endl;
     q3_ = asin(sinq3); //<- SVINGARM //rad
 
-    std::cout << "Value 1" << pow(b3,2) << std::endl;
-    std::cout << "Value 2" << 4*a3*c3 << std::endl;
+
 }
 void endPos::armCallback(const std_msgs::Float64MultiArray::ConstPtr& msg2) {
 
@@ -203,10 +197,6 @@ int main(int argc, char **argv) //Legg inn en subscriber også på motorhastighe
     std::cout <<"DETTE ER q2_:  "<<pos.getQ2()<<std::endl;
     std::cout <<"DETTE ER q3_:  "<<pos.getQ3()<<std::endl;
 
-
-
-
-
     ros::Rate loop_rate(10);
 
     while (ros::ok())
@@ -214,19 +204,22 @@ int main(int argc, char **argv) //Legg inn en subscriber også på motorhastighe
         std::cout << pos.getNewCmd()<<std::endl;
         if (pos.getNewCmd())
         {
+            /** Find q1_, q2_ and q3_ for the inout (x_,y_,z_)**/
             pos.inverseKinematics(); //now q1_,q2_ and q3_ are defined.
 
-            double mc1 = pos.mmToCounts(pos.getQ1()); //The carrige to the right.
-            double mc2 = pos.mmToCounts(pos.getQ2()- 205); //The carrige to the left.
-            double mc3 = pos.radToCounts(pos.getQ3()); //Swing arm
+            double mc1 = pos.mmToCounts(pos.getQ1()); //The RIGHT cart
+            double mc2 = pos.mmToCounts(pos.getQ2()- 205); //The LEFT cart. Need to subtract 205, since this
+                  //is the distance between the two carts.
+            double mc3 = pos.radToCounts(pos.getQ3()); //Swing arm.
 
             std::cout <<"DETTE ER mc1_(right:  "<< mc1<<std::endl;
             std::cout <<"DETTE ER left:  "<<mc2<<std::endl;
             std::cout <<"DETTE ER mc3_:arm  "<<mc3<<std::endl;
 
 
-
-            pos.sendCanFrame(pos.getCanId1(), -mc1); //Tell motorcontroller 3 to do 40000 counts.
+            /** Publish one message for each motor node. Positive x-axis is defined to the left. Hence the negative signs
+             * for left and right motor. **/
+            pos.sendCanFrame(pos.getCanId1(), -mc1);
             pos.sendCanFrame(pos.getCanId2(), -mc2);
             pos.sendCanFrame(pos.getCanId3(), mc3);
 
